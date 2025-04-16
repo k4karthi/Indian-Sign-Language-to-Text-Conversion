@@ -1,3 +1,4 @@
+#steamlit app for real time testing using .h5 file 
 import streamlit as st
 import cv2
 import numpy as np
@@ -9,7 +10,7 @@ st.set_page_config(page_title="Gesture Recognition (CNN)", layout="centered")
 # Load trained Keras model
 @st.cache_resource
 def load_cnn_model():
-    return load_model(r"C:\Users\karth\OneDrive\Desktop\Biriyani\mobilenet_app\mobilenetv2_handgesture_model.h5")
+    return load_model(r"path to your .h5 model")
 
 model = load_cnn_model()
 
@@ -17,7 +18,7 @@ model = load_cnn_model()
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.3)
 
-# Gesture labels
+# Gesture labels according to your model file
 gesture_labels = {
     0: "CAPACITOR",
     1: "HE",
