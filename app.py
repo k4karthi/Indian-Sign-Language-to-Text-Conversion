@@ -1,24 +1,30 @@
-#steamlit app for real time testing using .h5 file 
 import streamlit as st
+st.set_page_config(page_title="Gesture Recognition", layout="centered")
+
 import cv2
 import numpy as np
 import mediapipe as mp
-from keras.models import load_model
+import joblib
 
-st.set_page_config(page_title="Gesture Recognition (CNN)", layout="centered")
-
-# Load trained Keras model
+# Load model once
 @st.cache_resource
-def load_cnn_model():
-    return load_model(r"path to your .h5 model")
+def load_model():
+    return joblib.load(r"C:\Users\karth\OneDrive\Desktop\Biriyani\real_time_processing\random_forest_model.pkl")
 
-model = load_cnn_model()
+model = load_model()
 
-# MediaPipe initialization
+# MediaPipe setup
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.3)
+mp_drawing = mp.solutions.drawing_utils
+hands = mp_hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_confidence=0.2)
 
-# Gesture labels according to your model file
+# Streamlit UI
+st.title("🤖 Real-Time Hand Gesture Recognition")
+st.sidebar.write("📸 Click 'Start Webcam' to begin.")
+run = st.sidebar.button("Start Webcam")
+FRAME_WINDOW = st.image([])
+
+# 🔁 Updated gesture label mapping (0 to 29)
 gesture_labels = {
     0: "CAPACITOR",
     1: "HE",
@@ -32,41 +38,31 @@ gesture_labels = {
     9: "YOU"
 }
 
-
-# UI
-st.title("🤖 Real-Time ISL Gesture Recognition with CNN")
-st.sidebar.write("📸 Click 'Start Webcam' to begin.")
-run = st.sidebar.button("Start Webcam")
-FRAME_WINDOW = st.image([])
-
-# Preprocessing
+# Preprocessing function (CLAHE only, limited)
 def preprocess_frame(frame):
     img_lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
     l, a, b = cv2.split(img_lab)
-    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+    # Apply very mild CLAHE
+    clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(8, 8))
     l = clahe.apply(l)
     img_clahe = cv2.merge((l, a, b))
-    img_clahe = cv2.cvtColor(img_clahe, cv2.COLOR_LAB2BGR)
-    img_blur = cv2.GaussianBlur(img_clahe, (3, 3), 0)
-    img_hsv = cv2.cvtColor(img_blur, cv2.COLOR_BGR2HSV)
-    img_hsv[:, :, 2] = cv2.add(img_hsv[:, :, 2], 30)
-    img_preprocessed = cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
+    img_preprocessed = cv2.cvtColor(img_clahe, cv2.COLOR_LAB2BGR)
     return img_preprocessed
 
+
+# Landmark extraction
 def extract_landmarks(image_rgb):
     results = hands.process(image_rgb)
+    coords = []
     if results.multi_hand_landmarks:
-        data_aux = []
         for hand_landmarks in results.multi_hand_landmarks:
             for landmark in hand_landmarks.landmark:
-                data_aux.extend([landmark.x, landmark.y])
-        return data_aux
-    return None
+                coords.extend([landmark.x, landmark.y])
+    return coords, results
 
-# Real-time loop
+# Main loop
 if run:
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # For Windows compatibility
-
+    cap = cv2.VideoCapture(0)
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -75,53 +71,42 @@ if run:
 
         preprocessed = preprocess_frame(frame)
         img_rgb = cv2.cvtColor(preprocessed, cv2.COLOR_BGR2RGB)
-        landmarks = extract_landmarks(img_rgb)
+        landmarks, hand_results = extract_landmarks(img_rgb)
 
+        # Draw landmarks if detected
+        if hand_results.multi_hand_landmarks:
+            for hand_landmarks in hand_results.multi_hand_landmarks:
+                mp_drawing.draw_landmarks(
+                    img_rgb, hand_landmarks, mp_hands.HAND_CONNECTIONS,
+                    mp_drawing.DrawingSpec(color=(0, 0, 0), thickness=2, circle_radius=2),
+                    mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=2)
+                )
+
+        # Predict
         if landmarks:
-            # Get hand bounding box from landmarks
-            x_coords = landmarks[::2]
-            y_coords = landmarks[1::2]
-            h, w, _ = img_rgb.shape
+            if len(landmarks) < model.n_features_in_:
+                landmarks.extend([0] * (model.n_features_in_ - len(landmarks)))
+            elif len(landmarks) > model.n_features_in_:
+                landmarks = landmarks[:model.n_features_in_]
 
-            x_min = int(min(x_coords) * w) - 20
-            x_max = int(max(x_coords) * w) + 20
-            y_min = int(min(y_coords) * h) - 20
-            y_max = int(max(y_coords) * h) + 20
-
-            x_min = max(0, x_min)
-            y_min = max(0, y_min)
-            x_max = min(w, x_max)
-            y_max = min(h, y_max)
-
-            # Draw bounding box on original image
-            cv2.rectangle(img_rgb, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-
-            # Crop hand region and resize
-            hand_img = img_rgb[y_min:y_max, x_min:x_max]
-            hand_img = cv2.resize(hand_img, (224, 224))
-            hand_img = hand_img.astype("float32") / 255.0  # Normalize
-            hand_input = np.expand_dims(hand_img, axis=0)  # Shape: (1, 224, 224, 3)
-
-            # Predict using CNN
-            prediction = model.predict(hand_input, verbose=0)
-            gesture = gesture_labels.get(np.argmax(prediction), str(np.argmax(prediction)))
+            prediction = model.predict(np.array(landmarks).reshape(1, -1))[0]
+            gesture = gesture_labels.get(prediction, str(prediction))
         else:
             gesture = ""
 
-        # Overlay prediction text
+        # Draw prediction in black color
         cv2.putText(
             img_rgb,
             f"Prediction: {gesture}",
             (10, 30),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,
-            (0, 0, 0),
+            (0, 0, 0),  # Black font color
             2,
             cv2.LINE_AA
         )
 
         FRAME_WINDOW.image(img_rgb)
-
     cap.release()
 else:
     st.warning("🎬 Click 'Start Webcam' to begin.")
