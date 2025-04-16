@@ -1,3 +1,4 @@
+#streamlit app using .pkl model for real time testing
 import streamlit as st
 st.set_page_config(page_title="Gesture Recognition", layout="centered")
 
@@ -9,7 +10,7 @@ import joblib
 # Load model once
 @st.cache_resource
 def load_model():
-    return joblib.load(r"C:\Users\karth\OneDrive\Desktop\Biriyani\real_time_processing\random_forest_model.pkl")
+    return joblib.load(r"path to your model file")
 
 model = load_model()
 
@@ -24,7 +25,7 @@ st.sidebar.write("📸 Click 'Start Webcam' to begin.")
 run = st.sidebar.button("Start Webcam")
 FRAME_WINDOW = st.image([])
 
-# 🔁 Updated gesture label mapping (0 to 29)
+# 🔁 Update gesture label mapping according to your model file
 gesture_labels = {
     0: "CAPACITOR",
     1: "HE",
