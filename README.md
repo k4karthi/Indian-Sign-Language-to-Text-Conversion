@@ -4,6 +4,9 @@ The Indian Sign Language has been developed by Indiansignlanguage.org which offe
 
 This project aims to convert Indian Sign Language (ISL) gestures into readable text using both traditional machine learning and deep learning approaches. The application is designed to assist communication by interpreting hand gestures captured via a webcam or camera.
 
+![WhatsApp Image 2025-04-15 at 18 09 01_4f39023d](https://github.com/user-attachments/assets/bce33426-484e-493d-bca1-abf32634b435)
+
+
 🧠 **Models Used**
 
 ✅ 1. Random Forest + MediaPipe
