@@ -52,3 +52,9 @@ Attached is a sample of dataset created by us which is merged with some images f
 -Matplotlib / Seaborn for visualization
 
 -GitHub / Google Colab / Jupyter Notebooks
+
+
+![Screenshot 2025-03-25 022108](https://github.com/user-attachments/assets/a3942b79-d515-4d92-b2ac-1598895a1e75)
+
+![Screenshot 2025-04-08 085956](https://github.com/user-attachments/assets/a725d081-3eb4-4acf-b100-099356881d46)
+
