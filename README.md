@@ -53,8 +53,9 @@ Attached is a sample of dataset created by us which is merged with some images f
 
 -GitHub / Google Colab / Jupyter Notebooks
 
-
+**Results** 
+The first image attached shows result using MobileNet model. Bounding Box was drawn around hands and then gesture label is recognized.
 ![Screenshot 2025-03-25 022108](https://github.com/user-attachments/assets/a3942b79-d515-4d92-b2ac-1598895a1e75)
-
+The second image shows approach using Random Forest where coordinates extracted using mediapipe was used to recognize the gesture.
 ![Screenshot 2025-04-08 085956](https://github.com/user-attachments/assets/a725d081-3eb4-4acf-b100-099356881d46)
 
