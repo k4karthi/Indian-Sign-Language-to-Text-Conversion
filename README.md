@@ -8,7 +8,9 @@ This project aims to convert Indian Sign Language (ISL) gestures into readable t
 Attached is a sample of dataset created by us which is merged with some images from ISL-CSLTR images
 
 -dataset_augmentation.ipynb is python file to increase the number of images per class and include data augmentation
+
 -random_forest_mediapipe.ipynb , mobilenetV2.ipynb are scripts for 2 models trained on this dataset
+
 -app_pkl_model.py , app_h5_model.py are script for running web application using streamlit. Make sure you install all the dependencies before running the script using pip command
 
 
