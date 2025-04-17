@@ -15,9 +15,9 @@ Attached is a sample of dataset created by us which is merged with some images f
 -app_pkl_model.py , app_h5_model.py are script for running web application using streamlit. Make sure you install all the dependencies before running the script using pip command
 
 
-🧠 **Models Used**
+**Models Used**
 
-✅ 1. Random Forest + MediaPipe
+1. Random Forest + MediaPipe
 
 -Uses MediaPipe Hands for hand landmark extraction.
 
@@ -29,7 +29,7 @@ Attached is a sample of dataset created by us which is merged with some images f
 
 -Serialized as .pkl model.
 
-✅ 2. MobileNetV2 CNN Model
+2. MobileNetV2 CNN Model
 
 -Bounding box created using MediaPipe around detected hands.
 
@@ -41,7 +41,7 @@ Attached is a sample of dataset created by us which is merged with some images f
 
 -Trained on a processed dataset and serialized as .h5 model.
 
-🛠️ **Technologies Used**
+🛠**Technologies Used**
 
 -Python, OpenCV, TensorFlow/Keras, scikit-learn
 
@@ -53,7 +53,8 @@ Attached is a sample of dataset created by us which is merged with some images f
 
 -GitHub / Google Colab / Jupyter Notebooks
 
-**Results** 
+ **Results**
+
 The first image attached shows result using MobileNet model. Bounding Box was drawn around hands and then gesture label is recognized.
 ![Screenshot 2025-03-25 022108](https://github.com/user-attachments/assets/a3942b79-d515-4d92-b2ac-1598895a1e75)
 The second image shows approach using Random Forest where coordinates extracted using mediapipe was used to recognize the gesture.
